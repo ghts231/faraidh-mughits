@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Waris Islam (Faraidh)</title>
+    <style>
+        :root {
+            --primary-color: #0F5132; /* Emerald Green */
+            --primary-light: #198754;
+            --secondary-color: #D4AF37; /* Gold */
+            --bg-color: #F8F9FA;
+            --text-color: #333;
+            --white: #FFFFFF;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --error-color: #DC3545;
+            --success-color: #198754;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        /* Header & Watermark Style */
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 3rem 1rem; /* Padding diperbanyak untuk watermark */
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Elemen Watermark */
+        .header-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(3rem, 10vw, 8rem); /* Responsif: 3rem di HP, 8rem di desktop */
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.08); /* Sangat transparan */
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            pointer-events: none; /* Agar tidak menghalangi klik */
+            white-space: nowrap;
+            z-index: 0;
+            user-select: none;
+        }
+
+        /* Konten utama Header agar di atas watermark */
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
+        }
+
+        .heir-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .heir-grid label {
+            margin-bottom: 0;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-reset {
+            background-color: #6c757d;
+            margin-top: 0.5rem;
+        }
+
+        .btn-reset:hover {
+            background-color: #5a6268;
+        }
+
+        /* Results Area */
+        #result-area {
+            display: none;
+        }
+
+        .summary-box {
+            background-color: #e8f5e9;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .status-ashab { background-color: #d1e7dd; color: #0f5132; }
+        .status-asabah { background-color: #fff3cd; color: #856404; }
+        .status-mahjub { background-color: #f8d7da; color: #842029; text-decoration: line-through; opacity: 0.7; }
+
+        /* Educational Mode */
+        .edu-step {
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--secondary-color);
+        }
+
+        .edu-title {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* Notifications */
+        .toast {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .toast-error {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+
+        .toast-info {
+            background-color: #cff4fc;
+            color: #055160;
+            border: 1px solid #b6effb;
+        }
+
+        /* Examples Section */
+        .example-btn {
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.5rem;
+            margin: 0.25rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .example-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Footer & Contact Button */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 3rem;
+            border-top: 1px solid #ddd;
+            background-color: #fff;
+        }
+
+        .contact-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .social-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+        .social-btn svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            fill: currentColor;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        .btn-wa { background: linear-gradient(45deg, #25D366, #128C7E); }
+        .btn-ig { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); }
+        .btn-web { background: linear-gradient(45deg, #333, #555); }
+
+        .disclaimer {
+            font-size: 0.8rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .ornament {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            opacity: 0.5;
+            margin: 0 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <h1>Kalkulator Waris Islam</h1>
+        <p>Pembagian Harta Waris Sesuai Syariat Islam (Fiqih Faraidh)</p>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Input Section -->
+    <section class="card full-width">
+        <h2>Data Pewaris (Mayyit)</h2>
+        <div id="notification-area"></div>
+        
+        <div class="form-group">
+            <label for="total-assets">Total Nilai Harta Warisan (Rp / Unit)</label>
+            <input type="number" id="total-assets" placeholder="Contoh: 100000000" min="0">
+        </div>
+
+        <div class="heir-grid">
+            <div class="form-group">
+                <label for="gender">Jenis Kelamin Pewaris</label>
+                <select id="gender">
+                    <option value="male">Laki-laki</option>
+                    <option value="female">Perempuan</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="marital-status">Status Pernikahan</label>
+                <select id="marital-status">
+                    <option value="single">Belum Menikah</option>
+                    <option value="married">Masih Menikah</option>
+                    <option value="divorced">Janda/Duda (Pasangan meninggal)</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Ahli Waris</h2>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">Masukkan jumlah ahli waris yang masih hidup.</p>
+
+        <div class="form-group">
+            <label>Pasangan (Suami/Istri)</label>
+            <select id="spouse-count">
+                <option value="0">Tidak ada</option>
+                <option value="1">1 Orang</option>
+                <option value="2">2 Orang (Poligami - Istri)</option>
+                <option value="3">3 Orang (Poligami - Istri)</option>
+                <option value="4">4 Orang (Poligami - Istri)</option>
+            </select>
+        </div>
+
+        <div class="heir-grid">
+            <div class="form-group">
+                <label for="father-count">Ayah</label>
+                <select id="father-count">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="mother-count">Ibu</label>
+                <select id="mother-count">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                </select>
+            </div>
+        </div>
+
+        <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #eee;">
+        <label>Anak Kandung</label>
+        
+        <div class="heir-grid">
+            <div class="form-group">
+                <label for="son-count">Laki-laki</label>
+                <input type="number" id="son-count" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label for="daughter-count">Perempuan</label>
+                <input type="number" id="daughter-count" value="0" min="0">
+            </div>
+        </div>
+
+        <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #eee;">
+        <label>Cucu (Anak dari Anak)</label>
+        
+        <div class="heir-grid">
+            <div class="form-group">
+                <label for="grandson-count">Cucu Lk</label>
+                <input type="number" id="grandson-count" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label for="granddaughter-count">Cucu Pr</label>
+                <input type="number" id="granddaughter-count" value="0" min="0">
+            </div>
+        </div>
+
+        <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #eee;">
+        <label>Saudara Kandung</label>
+        
+        <div class="heir-grid">
+            <div class="form-group">
+                <label for="brother-count">Sdr Lk</label>
+                <input type="number" id="brother-count" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label for="sister-count">Sdr Pr</label>
+                <input type="number" id="sister-count" value="0" min="0">
+            </div>
+        </div>
+
+        <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #eee;">
+        <label>Saudara Seayah/Ibu Bunda</label>
+        <div class="heir-grid">
+            <div class="form-group">
+                <label for="halfbrother-count">Sdr Seayah</label>
+                <input type="number" id="halfbrother-count" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label for="halfsister-count">Sdr Seibu</label>
+                <input type="number" id="halfsister-count" value="0" min="0">
+            </div>
+        </div>
+
+        <button class="btn" onclick="calculateInheritance()">Hitung Pembagian</button>
+        <button class="btn btn-reset" onclick="resetForm()">Reset Form</button>
+    </section>
+
+    <section class="card">
+        <h2>Hasil Perhitungan</h2>
+        
+        <div id="empty-state" style="text-align: center; color: #888; padding: 2rem;">
+            <span style="font-size: 3rem;">📊</span>
+            <p>Belum ada perhitungan.</p>
+            <p>Silakan isi data ahli waris dan klik "Hitung".</p>
+        </div>
+
+        <div id="result-area">
+            <div class="summary-box">
+                <strong>Sisa Harta (Pembulatan):</strong> <span id="residual-display">0</span>
+                <br>
+                <small id="calc-status-msg" style="color: var(--primary-color);"></small>
+            </div>
+
+            <table id="result-table">
+                <thead>
+                    <tr>
+                        <th>Ahli Waris</th>
+                        <th>Status</th>
+                        <th>Porsi</th>
+                        <th>Bagian</th>
+                        <th>Nominal</th>
+                    </tr>
+                </thead>
+                <tbody id="result-body">
+                    <!-- Rows will be injected here -->
+                </tbody>
+            </table>
+
+            <div class="card" style="margin-top: 1rem; background-color: #fffcf5; border-top-color: #ffc107;">
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #856404;">Mode Edukasi (Logika)</h3>
+                <div id="edu-content">
+                    <!-- Educational steps -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Example Cases -->
+    <section class="card full-width">
+        <h2>Contoh Kasus (Simulasi Otomatis)</h2>
+        <p>Klik tombol di bawah untuk mencoba skenario umum:</p>
+        <div style="margin-top: 0.5rem;">
+            <button class="example-btn" onclick="loadExample(1)">Suami, Ibu, Bapak, Anak Lk 1</button>
+            <button class="example-btn" onclick="loadExample(2)">Istri, Ibu, Bapak, Anak Pr 2</button>
+            <button class="example-btn" onclick="loadExample(3)">Istri, Ibu, Bapak, Anak Pr 1, Anak Lk 1</button>
+            <button class="example-btn" onclick="loadExample(4)">Suami, Ibu, 2 Saudara Kandung</button>
+            <button class="example-btn" onclick="loadExample(5)">Istri, Ayah, Ibu, Cucu Pr (Ashobah Ma'al Ghair)</button>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <div class="contact-section">
+        <div class="contact-title">Hubungi Saya / Sayyid Mughits</div>
+        <div class="social-container">
+            <!-- Ganti tanda # dengan link asli Anda -->
+            <a href="https://wa.me/6285173432311" target="_blank" class="social-btn btn-wa">
+                <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                WhatsApp
+            </a>
+            <a href="https://instagram.com/syyidghts_/ " target="_blank" class="social-btn btn-ig">
+                <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                Instagram
+            </a>
+            <a href="https://sayyidmughits.my.id" target="_blank" class="social-btn btn-web">
+                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
+                Website
+            </a>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        <p><span class="ornament">☪</span>Disclaimer: Hasil perhitungan ini berdasarkan kaidah fiqih faraidh umum (Mazhab Syafi'i dan mayoritas ulama). Kasus-kasus kompleks tertentu mungkin memerlukan ijtihad ulama khusus. <span class="ornament">☪</span></p>
+        <p>Dibuat untuk tujuan edukasi dan panduan awal.</p>
+    </div>
+</footer>
+
+<script>
+    /**
+     * KALKULATOR FARaidH LOGIC
+     * Menggunakan pendekatan objek untuk mengelola state ahli waris.
+     * Prioritas: Ashabul Furudh -> Asabah -> Radd
+     */
+
+    // State Global
+    const state = {
+        totalAssets: 0,
+        deceasedGender: 'male',
+        maritalStatus: 'single',
+        heirs: {}
+    };
+
+    // Format Mata Uang
+    const formatCurrency = (num) => {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+    };
+
+    // Tampilkan Notifikasi
+    const showNotification = (message, type = 'error') => {
+        const area = document.getElementById('notification-area');
+        area.innerHTML = `<div class="toast toast-${type}">${message}</div>`;
+        area.querySelector('.toast').style.display = 'block';
+        setTimeout(() => {
+            area.querySelector('.toast').style.display = 'none';
+        }, 5000);
+    };
+
+    // Reset Form
+    const resetForm = () => {
+        document.getElementById('total-assets').value = '';
+        document.getElementById('gender').value = 'male';
+        document.getElementById('marital-status').value = 'single';
+        document.getElementById('spouse-count').value = '0';
+        
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => input.value = '0');
+        
+        // Reset selects (Ayah, Ibu, dll)
+        ['father-count', 'mother-count'].forEach(id => document.getElementById(id).value = '0');
+
+        document.getElementById('result-area').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'block';
+        document.getElementById('edu-content').innerHTML = '';
+    };
+
+    // Load Example
+    const loadExample = (num) => {
+        resetForm();
+        const assetInput = document.getElementById('total-assets');
+        assetInput.value = 100000000; // Default 100 Juta
+
+        switch(num) {
+            case 1: // Suami, Ibu, Bapak, Anak Lk 1
+                document.getElementById('gender').value = 'male';
+                document.getElementById('marital-status').value = 'married';
+                document.getElementById('spouse-count').value = '1';
+                document.getElementById('father-count').value = '1';
+                document.getElementById('mother-count').value = '1';
+                document.getElementById('son-count').value = '1';
+                break;
+            case 2: // Istri, Ibu, Bapak, Anak Pr 2 (Kalalah)
+                document.getElementById('gender').value = 'male';
+                document.getElementById('marital-status').value = 'married';
+                document.getElementById('spouse-count').value = '1';
+                document.getElementById('father-count').value = '1';
+                document.getElementById('mother-count').value = '1';
+                document.getElementById('daughter-count').value = '2';
+                break;
+            case 3: // Istri, Ibu, Bapak, Anak Pr 1, Anak Lk 1
+                document.getElementById('gender').value = 'male';
+                document.getElementById('marital-status').value = 'married';
+                document.getElementById('spouse-count').value = '1';
+                document.getElementById('father-count').value = '1';
+                document.getElementById('mother-count').value = '1';
+                document.getElementById('daughter-count').value = '1';
+                document.getElementById('son-count').value = '1';
+                break;
+            case 4: // Suami, Ibu, 2 Saudara Kandung (Ayah tidak ada)
+                document.getElementById('gender').value = 'male';
+                document.getElementById('marital-status').value = 'married';
+                document.getElementById('spouse-count').value = '1';
+                document.getElementById('mother-count').value = '1';
+                document.getElementById('brother-count').value = '2';
+                break;
+            case 5: // Istri, Ayah, Ibu, Cucu Pr (Ashobah Ma'al Ghair)
+                document.getElementById('gender').value = 'male';
+                document.getElementById('marital-status').value = 'married';
+                document.getElementById('spouse-count').value = '1';
+                document.getElementById('father-count').value = '1';
+                document.getElementById('mother-count').value = '1';
+                document.getElementById('granddaughter-count').value = '1';
+                break;
+        }
+        showNotification("Contoh kasus dimuat. Klik Hitung.", "info");
+    };
+
+    // Helper: Mendapatkan pembilang penyebut (misal "1/2" -> {num: 1, den: 2})
+    const parseFraction = (str) => {
+        if (!str || str === '-') return null;
+        if (str === 'Asabah') return { type: 'asabah' };
+        if (typeof str === 'number') return { num: str, den: 1 }; // Penuh
+        const parts = str.split('/');
+        return { num: parseInt(parts[0]), den: parseInt(parts[1]) };
+    };
+
+    // Helper: Format Pecahan untuk Tampilan
+    const displayFraction = (obj) => {
+        if (!obj) return '-';
+        if (obj.type === 'asabah') return 'Baki Sisa (Asabah)';
+        if (obj.den === 1) return obj.num; // Bilangan bulat
+        return `${obj.num}/${obj.den}`;
+    };
+
+    // Kalkulasi Utama
+    const calculateInheritance = () => {
+        // 1. Ambil Data
+        const totalAssets = parseFloat(document.getElementById('total-assets').value) || 0;
+        if (totalAssets <= 0) {
+            showNotification("Mohon masukkan total nilai harta warisan yang valid.");
+            return;
+        }
+
+        const gender = document.getElementById('gender').value;
+        const maritalStatus = document.getElementById('marital-status').value;
+        const spouseCount = parseInt(document.getElementById('spouse-count').value);
+        
+        // Input Ahli Waris
+        const heirs = {
+            father: parseInt(document.getElementById('father-count').value),
+            mother: parseInt(document.getElementById('mother-count').value),
+            husband: (gender === 'female' && maritalStatus !== 'single' && maritalStatus !== 'divorced') ? spouseCount : 0, // Suami hanya jika mayyit perempuan
+            wife: (gender === 'male' && maritalStatus !== 'single' && maritalStatus !== 'divorced') ? spouseCount : 0, // Istri hanya jika mayyit laki-laki
+            son: parseInt(document.getElementById('son-count').value),
+            daughter: parseInt(document.getElementById('daughter-count').value),
+            grandson: parseInt(document.getElementById('grandson-count').value),
+            granddaughter: parseInt(document.getElementById('granddaughter-count').value),
+            brother: parseInt(document.getElementById('brother-count').value),
+            sister: parseInt(document.getElementById('sister-count').value),
+            halfBrother: parseInt(document.getElementById('halfbrother-count').value),
+            halfSister: parseInt(document.getElementById('halfsister-count').value)
+        };
+
+        // Validasi logis (sederhana)
+        if (gender === 'male' && maritalStatus === 'married' && spouseCount > 4) {
+            showNotification("Maksimal istri adalah 4 orang.");
+            return;
+        }
+
+        // 2. Proses Logika Faraidh
+        let results = [];
+        let eduSteps = [];
+        
+        // Total Porsi (Penyebut)
+        let totalPortions = 0; 
+        let shares = {}; // Menyimpan bagian mentah { num, den }
+
+        eduSteps.push(`<div class="edu-step"><div class="edu-title">Langkah 1: Identifikasi Ashhabul Furudh (Penerima Bagian Tetap)</div>`);
+
+        // --- HITUNG BAGIAN SUAMI / ISTRI ---
+        if (heirs.husband > 0) {
+            // Suami: 1/2 jika tidak ada anak/cucu, 1/4 jika ada
+            let hasChildOrGrandchild = (heirs.son > 0 || heirs.daughter > 0 || heirs.grandson > 0 || heirs.granddaughter > 0);
+            let share = hasChildOrGrandchild ? {num: 1, den: 4} : {num: 1, den: 2};
+            
+            shares['husband'] = share;
+            eduSteps.push(`Suami mendapat bagian <strong>${share.num}/${share.den}</strong> (${hasChildOrGrandchild ? 'karena ada keturunan' : 'karena tidak ada keturunan'}).`);
+        }
+        if (heirs.wife > 0) {
+            // Istri: 1/4 jika tidak ada anak/cucu, 1/8 jika ada
+            let hasChildOrGrandchild = (heirs.son > 0 || heirs.daughter > 0 || heirs.grandson > 0 || heirs.granddaughter > 0);
+            let share = hasChildOrGrandchild ? {num: 1, den: 8} : {num: 1, den: 4};
+            
+            shares['wife'] = share;
+            // Istri berbagi jika poligami
+            eduSteps.push(`Istri mendapat bagian total <strong>${share.num}/${share.den}</strong> (${hasChildOrGrandchild ? 'karena ada keturunan' : 'karena tidak ada keturunan'}). Bagian ini dibagi rata kepada ${heirs.wife} orang istri.`);
+        }
+
+        // --- HITUNG BAGIAN AYAH & IBU ---
+        if (heirs.father > 0) {
+            // Ayah: 1/6 jika ada anak, Asabah jika tidak ada anak (tapi ada saudara/bisa sisa), 1/6+Asabah (Kalalah)
+            // Dalam simplifikasi ini: Jika ada anak (son/daughter), 1/6. Jika tidak ada anak, check asabah nanti.
+            // Kecuali Kalalah (tidak ada anak/cucu dan tidak ada saudara kandung), maka 1/6 + sisa.
+            
+            let hasChild = (heirs.son > 0 || heirs.daughter > 0);
+            
+            if (hasChild) {
+                shares['father'] = {num: 1, den: 6};
+                eduSteps.push(`Ayah mendapat <strong>1/6</strong> karena ada anak kandung.`);
+            } else {
+                // Ayah masuk kategori Asabah jika tidak ada anak (ditangani di langkah Asabah)
+                // Kecuali kasus Kalalah (tidak ada anak/cucu dan tidak ada saudara kandung) -> 1/6 + sisanya.
+                // Untuk simplifikasi kode, kita tandai sebagai 'pending_asabah' atau beri 1/6 jika Kalalah.
+                let hasSibling = (heirs.brother > 0 || heirs.sister > 0);
+                if (!hasSibling) {
+                    shares['father'] = {num: 1, den: 6, special: 'kalalah'}; // Special case: 1/6 + Sisa
+                    eduSteps.push(`Ayah mendapat <strong>1/6</strong> (Ashabul Furudh) dan berhak atas sisa harta (Asabah) karena tidak ada anak dan saudara kandung (Kalalah).`);
+                } else {
+                    shares['father'] = { type: 'asabah_only' }; // Hanya asabah
+                    eduSteps.push(`Ayah dihitung sebagai <strong>Asabah</strong> karena tidak ada anak kandung.`);
+                }
+            }
+        }
+
+        if (heirs.mother > 0) {
+            // Ibu: 1/6 (jika ada anak/cucu atau banyak saudara), 1/3 (jika tidak ada anak/cucu dan saudara < 2)
+            let hasChildOrGrandchild = (heirs.son > 0 || heirs.daughter > 0 || heirs.grandson > 0 || heirs.granddaughter > 0);
+            let siblingCount = heirs.brother + heirs.sister + heirs.halfBrother + heirs.halfSister;
+            let isManySiblings = siblingCount >= 2;
+
+            if (hasChildOrGrandchild || isManySiblings) {
+                shares['mother'] = {num: 1, den: 6};
+                eduSteps.push(`Ibu mendapat <strong>1/6</strong> (${hasChildOrGrandchild ? 'karena ada keturunan' : 'karena jumlah saudara >= 2'}).`);
+            } else {
+                shares['mother'] = {num: 1, den: 3};
+                eduSteps.push(`Ibu mendapat <strong>1/3</strong> karena tidak ada keturunan dan saudara kurang dari 2 orang.`);
+            }
+        }
+
+        // --- HITUNG BAGIAN ANAK ---
+        // Anak Laki-laki selalu Asabah
+        if (heirs.son > 0) {
+            shares['son'] = { type: 'asabah' };
+            eduSteps.push(`Anak laki-laki (${heirs.son}) adalah <strong>Asabah</strong> (menghabiskan sisa harta).`);
+        } else if (heirs.daughter > 0 && heirs.son === 0) {
+            // Anak Perempuan tanpa saudara laki-laki: 1/2 jika sendirian, 2/3 jika > 1
+            if (heirs.daughter === 1) {
+                shares['daughter'] = {num: 1, den: 2};
+                eduSteps.push(`Anak perempuan (1 orang) mendapat <strong>1/2</strong>.`);
+            } else {
+                shares['daughter'] = {num: 2, den: 3};
+                eduSteps.push(`Anak perempuan (${heirs.daughter} orang) mendapat <strong>2/3</strong>.`);
+            }
+        }
+
+        // --- HITUNG BAGIAN CUCU ---
+        // Hanya dihitung jika tidak ada Anak Laki-laki
+        if (heirs.son === 0) {
+            if (heirs.grandson > 0) {
+                shares['grandson'] = { type: 'asabah' };
+                eduSteps.push(`Cucu laki-laki (${heirs.grandson}) adalah <strong>Asabah</strong> (karena tidak ada anak laki-laki).`);
+            } else if (heirs.granddaughter > 0 && heirs.grandson === 0) {
+                // Syariat: Cucu perempuan bisa tertutup (mahjub) oleh anak perempuan?
+                // Jika ada anak perempuan, cucu perempuan dapat asabah ma'al ghair (bersama asabah) atau mahjub tergantung mazhab.
+                // Mayoritas: Jika ada Anak Pr, Cucu Pr tidak dapat apa-apa (kecuali Asabah Ma'al Ghair bila ada Asabah lain).
+                // Untuk simplifikasi "umum": Cucu Pr dapat 1/2 (sendiri) atau 2/3 jika >1 JIKA TIDAK ADA ANAK PR.
+                // JIKA ADA ANAK PR, Cucu PR ikut Asabah (bersama anak pr - bagi 2:1) - *Ini pendapat dalam beberapa kasus, tapi sering dianggap mahjub di sederhananya.*
+                
+                // Kita gunakan logika umum: Cucu Pr hanya dapat bagian jika tidak ada Anak Pr.
+                if (heirs.daughter === 0) {
+                    if (heirs.granddaughter === 1) {
+                        shares['granddaughter'] = {num: 1, den: 2};
+                        eduSteps.push(`Cucu perempuan (1 orang) mendapat <strong>1/2</strong>.`);
+                    } else {
+                        shares['granddaughter'] = {num: 2, den: 3};
+                        eduSteps.push(`Cucu perempuan (${heirs.granddaughter} orang) mendapat <strong>2/3</strong>.`);
+                    }
+                } else {
+                    // Ada Anak Pr, Cucu Pr. Dalam kasus Ashabul Furudh biasanya Mahjub.
+                    // Namun, jika ada Asabah (Ayah/Saudara Lk), mereka bisa jadi Asabah Ma'al Ghair.
+                    // Kita tandai sebagai 'potential_asabah_maghair'
+                    shares['granddaughter'] = { type: 'potential_asabah_maghair', depends_on: ['father', 'brother', 'halfbrother', 'grandson'] };
+                    eduSteps.push(`Cucu perempuan (${heirs.granddaughter}) berpotensi menjadi Asabah Ma'al Ghair (bersama asabah laki-laki) karena ada anak perempuan.`);
+                }
+            }
+        } else {
+            // Ada Anak Lk, Cucu (semua) Mahjub
+            if(heirs.granddaughter > 0) {
+                shares['granddaughter'] = { type: 'mahjub' };
+                eduSteps.push(`Cucu perempuan (<strong>Mahjub</strong>/terhalang) karena ada anak laki-laki.`);
+            }
+        }
+
+        // --- SAUDARA KANDUNG ---
+        // Dihitung jika tidak ada Ayah, Anak Lk, Cucu Lk
+        let hasMaleAsabahBlocking = (heirs.father > 0 && shares['father'] && shares['father'].type !== 'kalalah') || heirs.son > 0 || heirs.grandson > 0;
+        
+        if (!hasMaleAsabahBlocking) {
+            // Jika tidak ada penghalang
+            if (heirs.brother > 0) {
+                shares['brother'] = { type: 'asabah' };
+                eduSteps.push(`Saudara kandung laki-laki (${heirs.brother}) adalah <strong>Asabah</strong> (karena tidak ada ayah/anak laki-laki).`);
+            } else if (heirs.sister > 0 && heirs.brother === 0) {
+                // Saudari Kandung tanpa Saudara Lk
+                // 1/2 jika sendiri, 2/3 jika banyak, Asabah Ma'al Ghair jika ada Anak Pr/Cucu Pr (yang jadi Ashabul Furudh)
+                
+                let isWithFemaleFurudh = (heirs.daughter > 0 || (heirs.granddaughter > 0 && shares['granddaughter'].type !== 'mahjub'));
+                
+                if (isWithFemaleFurudh) {
+                    shares['sister'] = { type: 'asabah_maghair' }; // Asabah bersama Anak/Cucu Pr
+                    eduSteps.push(`Saudari kandung (${heirs.sister}) menjadi <strong>Asabah Ma'al Ghair</strong> bersama anak/cucu perempuan.`);
+                } else {
+                    if (heirs.sister === 1) {
+                        shares['sister'] = {num: 1, den: 2};
+                        eduSteps.push(`Saudari kandung (1 orang) mendapat <strong>1/2</strong>.`);
+                    } else {
+                        shares['sister'] = {num: 2, den: 3};
+                        eduSteps.push(`Saudari kandung (${heirs.sister} orang) mendapat <strong>2/3</strong>.`);
+                    }
+                }
+            }
+        } else {
+            // Ada penghalang (Ayah/Anak Lk) -> Saudara Mahjub kecuali dalam kasus 'Asabah Ma'al Ghair' (bersama anak/cucu pr) jika dia SAUDARI.
+            if (heirs.sister > 0) {
+                 // Cek apakah dia Asabah Ma'al Ghair?
+                 // Syarat: Ada Anak Pr atau Cucu Pr (Ashabul Furudh) dan Tidak ada Ayah/Anak Lk (Penghalang Asabah Mutlak).
+                 // Kondisi hasMaleAsabahBlocking di atas sudah cek Ayah/Anak Lk.
+                 let isWithFemaleFurudh = (heirs.daughter > 0 || (heirs.granddaughter > 0 && shares['granddaughter'].type !== 'mahjub'));
+
+                 if (isWithFemaleFurudh) {
+                     shares['sister'] = { type: 'asabah_maghair' };
+                     eduSteps.push(`Saudari kandung (${heirs.sister}) menjadi <strong>Asabah Ma'al Ghair</strong> (bersama anak/cucu perempuan) walau ada penghalang (Ayah/Anak Lk) dianggap tidak menghalang jenis Asabah ini sebagian ulama, namun di sini kita hitung.)`);
+                 } else {
+                     shares['sister'] = { type: 'mahjub' };
+                 }
+            }
+            if(heirs.brother > 0) shares['brother'] = { type: 'mahjub' };
+        }
+
+        eduSteps.push(`</div>`);
+
+        // --- HITUNG KPK (Pembagi Umum) ---
+        eduSteps.push(`<div class="edu-step"><div class="edu-title">Langkah 2: Menentukan Pembagi (Aul / Radd / Biasa)</div>`);
+        
+        let denominators = [];
+        let listShares = [];
+        
+        // Helper untuk mengumpulkan penyebut pecahan saja
+        const collectDenominators = (key) => {
+            let s = shares[key];
+            if (s && s.num && s.den) {
+                denominators.push(s.den);
+                listShares.push({ key, ...s });
+            }
+        };
+
+        collectDenominators('husband');
+        collectDenominators('wife');
+        collectDenominators('father'); // Kalalah case
+        collectDenominators('mother');
+        collectDenominators('daughter');
+        collectDenominators('granddaughter'); // Hanya jika bukan asabah
+        collectDenominators('sister'); // Hanya jika 1/2 atau 2/3
+
+        // Fungsi KPK sederhana
+        const gcd = (a, b) => !b ? a : gcd(b, a % b);
+        const lcm = (a, b) => (a * b) / gcd(a, b);
+        
+        let basePortion = 1;
+        if (denominators.length > 0) {
+            basePortion = denominators.reduce(lcm);
+        }
+        
+        eduSteps.push(`Penyebut pecahan: ${denominators.join(', ')}. KPK (Pembagi) adalah <strong>${basePortion}</strong>.`);
+
+        // Hitung jumlah bagian yang ditempati oleh Ashabul Furudh
+        let usedShares = 0;
+        listShares.forEach(item => {
+            // Convert ke basePortion
+            // contoh: 1/2 di base 6 -> 3
+            usedShares += (basePortion / item.den) * item.num;
+        });
+
+        // Cek Asabah
+        let asabahMembers = [];
+        const checkAsabah = (key, typeStr, count, ratioToMale = 0) => {
+            let s = shares[key];
+            if (s) {
+                if (s.type === 'asabah' || s.type === 'asabah_only' || s.type === 'asabah_maghair') {
+                    asabahMembers.push({ key, type: typeStr, count, ratioToMale }); // ratioToMale: 0=laki-laki, 1=perempuan (setengah laki-laki)
+                }
+            }
+        };
+
+        checkAsabah('son', 'Anak Lk', heirs.son, 0);
+        checkAsabah('grandson', 'Cucu Lk', heirs.grandson, 0);
+        checkAsabah('father', 'Ayah', heirs.father, 0); // Ayah sebagai asabah (kalalah atau tanpa anak)
+        checkAsabah('brother', 'Sdr Lk', heirs.brother, 0);
+        checkAsabah('halfBrother', 'Sdr Seayah', heirs.halfBrother, 0);
+        
+        // Perempuan Asabah
+        checkAsabah('sister', 'Sdr Pr', heirs.sister, 1); // Asabah Ma'al Ghair atau Asabah ma'a ukhtuha (jika bersama saudari pr lain)
+        checkAsabah('granddaughter', 'Cucu Pr', heirs.granddaughter, 1);
+
+        // Cek Aul (Jumlah bagian > Pembagi)
+        if (usedShares > basePortion && asabahMembers.length === 0) {
+            // Terjadi Aul
+            eduSteps.push(`Total bagian (${usedShares}) melebihi Pembagi (${basePortion}). Terjadi <strong>'Aul</strong> (Pembagian Berkurang).`);
+            
+            // Bagi proporsional
+            listShares.forEach(item => {
+                item.finalPortion = item.num; // Pecahan tetap, tapi nominal disesuaikan nanti
+                item.isAul = true;
+            });
+            state.scenario = 'aul';
+        } else if (usedShares < basePortion && asabahMembers.length === 0) {
+            // Terjadi Radd (Kembali ke Ahli Waris) jika tidak ada Asabah
+            eduSteps.push(`Total bagian (${usedShares}) kurang dari Pembagi (${basePortion}). Tidak ada Asabah. Terjadi <strong>Radd</strong> (Sisa dikembalikan ke ahli waris).`);
+            
+            let residual = basePortion - usedShares;
+            
+            // Distribusikan sisa secara proporsional dengan bagian mereka
+            // Rumus: (Bagian Asal + (Bagian Asal * Residual / Total Bagian Asal))
+            listShares.forEach(item => {
+                let base = (basePortion / item.den) * item.num;
+                let bonus = (base / usedShares) * residual;
+                item.finalPortionRaw = base + bonus;
+                item.isRadd = true;
+            });
+            state.scenario = 'radd';
+        } else {
+            // Normal (Ada Asabah atau Pas)
+            state.scenario = 'normal';
+            if (asabahMembers.length > 0) {
+                let residual = basePortion - usedShares;
+                eduSteps.push(`Sisa bagian: ${residual}. Bagian ini untuk <strong>Asabah</strong>.`);
+                
+                // Hitung bagian asabah
+                // Rumus: Residual / Jumlah Unit Asabah
+                // Unit Asabah = 1 poin untuk lk, 0.5 poin untuk pr (kecuali kasus tertentu)
+                let totalUnits = 0;
+                asabahMembers.forEach(m => {
+                    let unit = m.count;
+                    if (m.ratioToMale === 1) unit = m.count * 0.5;
+                    totalUnits += unit;
+                });
+
+                asabahMembers.forEach(m => {
+                    let unit = m.count;
+                    if (m.ratioToMale === 1) unit = m.count * 0.5;
+                    let totalForGroup = (unit / totalUnits) * residual;
+                    m.finalPortionRaw = totalForGroup;
+                    m.perHead = totalForGroup / m.count; // Bagian per kepala (untuk display tabel)
+                });
+            } else {
+                 eduSteps.push(`Perhitungan Normal (Tepat).`);
+            }
+            listShares.forEach(item => {
+                item.finalPortionRaw = (basePortion / item.den) * item.num;
+            });
+        }
+
+        eduSteps.push(`</div>`);
+
+        // --- HASIL AKHIR & RENDER ---
+        eduSteps.push(`<div class="edu-step"><div class="edu-title">Langkah 3: Konversi ke Nominal</div>`);
+
+        let resultRows = [];
+        let totalNominal = 0;
+
+        // Proses Ashabul Furudh & Radd/Aul
+        listShares.forEach(item => {
+            let count = 0;
+            let name = "";
+            if(item.key === 'husband') { count = heirs.husband; name = "Suami"; }
+            if(item.key === 'wife') { count = heirs.wife; name = "Istri"; }
+            if(item.key === 'father') { count = heirs.father; name = "Ayah"; }
+            if(item.key === 'mother') { count = heirs.mother; name = "Ibu"; }
+            if(item.key === 'daughter') { count = heirs.daughter; name = "Anak Pr"; }
+            if(item.key === 'granddaughter') { count = heirs.granddaughter; name = "Cucu Pr"; }
+            if(item.key === 'sister') { count = heirs.sister; name = "Sdr Pr"; }
+
+            let portionStr = displayFraction({num: item.num, den: item.den});
+            let shareValue = 0;
+            let singleShareValue = 0;
+
+            if (state.scenario === 'aul') {
+                // Hitung nominal berdasarkan rasio (bagian / total bagian valid)
+                let totalValid = usedShares;
+                let myBase = (basePortion / item.den) * item.num;
+                let finalVal = (myBase / totalValid) * basePortion;
+                singleShareValue = (finalVal / basePortion) * totalAssets;
+                shareValue = singleShareValue;
+            } else if (state.scenario === 'radd') {
+                let finalVal = item.finalPortionRaw;
+                singleShareValue = (finalVal / basePortion) * totalAssets;
+                shareValue = singleShareValue;
+            } else {
+                // Normal
+                singleShareValue = (item.finalPortionRaw / basePortion) * totalAssets;
+                shareValue = singleShareValue;
+            }
+
+            // Total untuk grup (misal 2 istri)
+            let totalGroupValue = shareValue * count;
+
+            resultRows.push({
+                name: name,
+                count: count,
+                status: 'Ashabul Furudh',
+                portion: portionStr + (item.isRadd ? ' (+Radd)' : '') + (item.isAul ? ' (Aul)' : ''),
+                shareValue: shareValue,
+                totalValue: totalGroupValue
+            });
+            
+            totalNominal += totalGroupValue;
+        });
+
+        // Proses Asabah
+        asabahMembers.forEach(m => {
+            let count = m.count;
+            let name = m.type;
+            let singleShareValue = (m.finalPortionRaw / basePortion) * totalAssets;
+            let totalGroupValue = singleShareValue * count;
+
+            resultRows.push({
+                name: name,
+                count: count,
+                status: 'Asabah',
+                portion: 'Sisa',
+                shareValue: singleShareValue,
+                totalValue: totalGroupValue
+            });
+            totalNominal += totalGroupValue;
+        });
+
+        // Urutkan hasil (Prioritas: Suami/Istri, Ortu, Anak, Saudara) - opsional
+        // Kita biarkan urutan masuk logika.
+
+        // Render Tabel
+        const tbody = document.getElementById('result-body');
+        tbody.innerHTML = '';
+        
+        let residualMoney = totalAssets - totalNominal;
+        // Handle pembulatan error
+        if (Math.abs(residualMoney) < 1) residualMoney = 0;
+
+        resultRows.forEach(row => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.name} ${row.count > 1 ? `<span style="font-size:0.8em;color:#666">(${row.count} org)</span>` : ''}</td>
+                <td><span class="status-badge status-${row.status === 'Ashabul Furudh' ? 'ashab' : 'asabah'}">${row.status}</span></td>
+                <td>${row.portion}</td>
+                <td>${formatCurrency(row.shareValue)} ${row.count > 1 ? '/org' : ''}</td>
+                <td><strong>${formatCurrency(row.totalValue)}</strong></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Tampilkan Sisa
+        document.getElementById('residual-display').innerText = formatCurrency(residualMoney);
+        let statusMsg = "";
+        if (state.scenario === 'aul') statusMsg = "Terjadi 'Aul (Bagian Asabul Furudh dikurangi proporsional)";
+        else if (state.scenario === 'radd') statusMsg = "Terjadi Radd (Sisa harta dikembalikan ke Ashabul Furudh)";
+        else if (asabahMembers.length > 0) statusMsg = "Sisa harta diambil oleh Asabah";
+        else statusMsg = "Bagian Pas";
+        
+        document.getElementById('calc-status-msg').innerText = statusMsg;
+
+        // Render Edukasi
+        document.getElementById('edu-content').innerHTML = eduSteps.join('');
+
+        // Show Area
+        document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('result-area').style.display = 'block';
+    };
+</script>
+
+</body>
+</html>
